@@ -26,15 +26,12 @@
     };
     var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection||{ type:" Network Information API not Supported"};
 
-
-    connection.addEventListener('typechange', function(){lable.textContent = connection.type;});
-
-    document.body.addEventListener("offline", function () {
+    lablestatus.textContent =  navigator.onLine;
+    connection.addEventListener('typechange', function(){
+        lable.textContent = connection.type;
         lablestatus.textContent =  navigator.onLine;
-    }, false);
-    document.body.addEventListener("online", function () {
-        lablestatus.textContent =  navigator.onLine;
-    }, false);
+    });
+
 
     console.log("Hi");
     var el = document.querySelector('.myClazz');
