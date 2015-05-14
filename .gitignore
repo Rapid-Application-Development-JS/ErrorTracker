@@ -1,0 +1,6 @@
+.idea/
+nbproject/
+.DS_Store
+.DS_STORE
+web.config
+/node_modules/
