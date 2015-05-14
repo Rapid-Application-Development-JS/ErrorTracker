@@ -15,15 +15,27 @@
 <textarea>Type some text here before pressing "Launch"</textarea>
 <button class="myClazz" onclick="launch()">Launch</button>
 <span id="lable">test</span>
+<br>
+<span id="lablestatus">test</span>
 <script type="text/javascript">
 
+    var lable = document.getElementById("lable"),
+            lablestatus = document.getElementById("lablestatus");
     errorTracker.onError = function(serializedError){
         console.log(serializedError);
     };
     var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection||{ type:" Network Information API not Supported"};
 
-    var lable = document.getElementById("lable");
+
     connection.addEventListener('typechange', function(){lable.textContent = connection.type;});
+
+    document.body.addEventListener("offline", function () {
+        lablestatus.textContent =  navigator.onLine;
+    }, false);
+    document.body.addEventListener("online", function () {
+        lablestatus.textContent =  navigator.onLine;
+    }, false);
+
     console.log("Hi");
     var el = document.querySelector('.myClazz');
     el.addEventListener("focus", function() {
