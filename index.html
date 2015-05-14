@@ -23,6 +23,7 @@
     var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection||{ type:" Network Information API not Supported"};
     var lable = document.getElementById("lable");
     lable.textContent = connection.type;
+    console.log("Hi");
     var el = document.querySelector('.myClazz');
     el.addEventListener("focus", function() {
         console.log('some stuff');
