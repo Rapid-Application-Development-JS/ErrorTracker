@@ -14,6 +14,7 @@
 
 <textarea>Type some text here before pressing "Launch"</textarea>
 <button class="myClazz" onclick="launch()">Launch</button>
+<br>
 <span id="lable">test</span>
 <br>
 <span id="lablestatus">test</span>
@@ -24,14 +25,17 @@
     errorTracker.onError = function(serializedError){
         console.log(serializedError);
     };
-    var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection||{ type:" Network Information API not Supported"};
+    var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection|| { type : undefined};
 
-    lablestatus.textContent =  navigator.onLine;
-    connection.addEventListener('typechange', function(){
-        lable.textContent = connection.type;
-        lablestatus.textContent =  navigator.onLine;
-    });
+    lablestatus.textContent =  "connection status: " + navigator.onLine;
+    lable.textContent = "connection type: " + connection.type;
+    if(connection.type) {
 
+        connection.addEventListener('typechange', function () {
+            lable.textContent = "connection type: " + connection.type;
+            lablestatus.textContent = "connection status: " + navigator.onLine;
+        });
+    }
 
     console.log("Hi");
     var el = document.querySelector('.myClazz');
