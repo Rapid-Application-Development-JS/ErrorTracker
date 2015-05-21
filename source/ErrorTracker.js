@@ -33,13 +33,13 @@
             DOM: "DOM",
             DOMEventTypes: {
                 _any:["load", "drop", "paste", "play", "pageshow", "hashchange"],
-                button:["click", "dblclick"],
+                button:["click", "dblclick", 'hold', 'fling','longtap','tap','doubletap'],
                 input:["blur"],
                 textarea:["blur"],
                 form:["submit", "reset"]
             },
             EventListenerEliminations: ["scroll", "wheel", "drag", "mousemove", "mouseover", "mouseout", "mouseleave", "mouseenter",
-                "touchmove", "mousewheel", "input", "keydown", "keypress", "keyup"]
+                "touchmove", "mousewheel", "input", "keydown", "keypress", "keyup" ]
         };
 
         this.eventStack = {

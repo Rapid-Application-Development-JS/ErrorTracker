@@ -5,6 +5,8 @@
     <title></title>
     <link rel="stylesheet" href="theme/css/main.css" type="text/css"/>
     <link rel="stylesheet" href="layout.css" type="text/css"/>
+    <script type="text/javascript" src="libs/pointer.min.js"></script>
+    <script type="text/javascript" src="libs/gesture.min.js"></script>
     <script type="text/javascript" src="../source/ErrorTracker.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
 </head>
@@ -19,21 +21,21 @@
         Open console for view results
     </div>
     <div class="section__content">
-        <button class="topcoat-button"  onclick="addEvent()">Add Custom Event</button>
+        <button id="customEventButton" class="topcoat-button">Add Custom Event</button>
         <input type="text" class="topcoat-text-input responsive-width-full" id="eventMessage" placeholder="Enter event message">
     </div>
     <div class="section__content">
-        <button class="topcoat-button" onclick="addBlock()">Add Block</button>
+        <button id="addBlockButton" class="topcoat-button">Add Block</button>
         <input type="text" class="topcoat-text-input responsive-width-full" id="blockText" placeholder="Enter block Name">
     </div>
     <div class="section__content">
-        <button class="topcoat-button" onclick="clearLog()">Clear Log</button>
+        <button id="clearLogButton" class="topcoat-button">Clear Log</button>
     </div>
     <div class="section__content">
-        <button class="topcoat-button"  onclick="print()">Print</button>
+        <button id="printButton" class="topcoat-button">Print</button>
     </div>
     <div class="section__content">
-        <button class="topcoat-button" onclick="launch()">Generate Error</button>
+        <button id="launchButton" class="topcoat-button">Generate Error</button>
     </div>
 </div>
 <script type="text/javascript">
@@ -43,33 +45,37 @@
         console.log(serializedError);
     };
 
-    var textArea = document.getElementById("text"),
-            blockText = document.getElementById("blockText"),
+    var blockText = document.getElementById("blockText"),
             main = document.getElementById("main"),
             eventMessage = document.getElementById("eventMessage");
-
-    function addEvent(){
-        errorTracker.addCustomEvent({message: eventMessage.value});
-    }
-    function clearLog(){
-        errorTracker.clearLog();
-    }
-    function addBlock(){
-        errorTracker.createNewEventBlock(blockText.value);
-    }
-
-    function launch(){
-        setTimeout(function(){
-
-            $.ajax({url: "index.html", success: function(){
-                foo(); //call nonexistent function to raise exception
-            }});
-        });
-    }
-
-    function print(){
-        errorTracker.printLog();
-    }
+    var pointer = new PointerTracker(main),
+            gesture = new GestureTracker(main);
+    //gesture._pointerDown(null);
+    main.addEventListener(gesture.GESTURE_EVENTS.tap,
+            function (event){
+                switch (event.target.id){
+                    case 'customEventButton':
+                        errorTracker.addCustomEvent({message: eventMessage.value});
+                        break;
+                    case 'addBlockButton':
+                        errorTracker.createNewEventBlock(blockText.value);
+                        break;
+                    case 'clearLogButton':
+                        errorTracker.clearLog();
+                        break;
+                    case 'printButton':
+                        errorTracker.printLog();
+                        break;
+                    case 'launchButton':
+                        setTimeout(function(){
+                            $.ajax({url: "index.html", success: function(){
+                                foo(); //call nonexistent function to raise exception
+                            }});
+                        });
+                        break;
+                }
+            }
+    );
 
 </script>
 
