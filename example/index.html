@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="theme/css/main.css" type="text/css"/>
+    <link rel="stylesheet" href="layout.css" type="text/css"/>
+    <script type="text/javascript" src="../source/ErrorTracker.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+</head>
+<body>
+<div class="top-bar topcoat-navigation-bar">
+    <div class="topcoat-navigation-bar__item center full">
+        <h1 class="topcoat-navigation-bar__title">Dialog Example</h1>
+    </div>
+</div>
+<div id="main" class="section">
+    <div class="section__header">
+        Open console for view results
+    </div>
+    <div class="section__content">
+        <button class="topcoat-button"  onclick="addEvent()">Add Custom Event</button>
+        <input type="text" class="topcoat-text-input responsive-width-full" id="eventMessage" placeholder="Enter event message">
+    </div>
+    <div class="section__content">
+        <button class="topcoat-button" onclick="addBlock()">Add Block</button>
+        <input type="text" class="topcoat-text-input responsive-width-full" id="blockText" placeholder="Enter block Name">
+    </div>
+    <div class="section__content">
+        <button class="topcoat-button" onclick="clearLog()">Clear Log</button>
+    </div>
+    <div class="section__content">
+        <button class="topcoat-button"  onclick="print()">Print</button>
+    </div>
+    <div class="section__content">
+        <button class="topcoat-button" onclick="launch()">Generate Error</button>
+    </div>
+</div>
+<script type="text/javascript">
+
+    var errorTracker = new ErrorTracker();
+    errorTracker.onError = function(serializedError){
+        console.log(serializedError);
+    };
+
+    var textArea = document.getElementById("text"),
+            blockText = document.getElementById("blockText"),
+            main = document.getElementById("main"),
+            eventMessage = document.getElementById("eventMessage");
+
+    function addEvent(){
+        errorTracker.addCustomEvent({message: eventMessage.value});
+    }
+    function clearLog(){
+        errorTracker.clearLog();
+    }
+    function addBlock(){
+        errorTracker.createNewEventBlock(blockText.value);
+    }
+
+    function launch(){
+        setTimeout(function(){
+
+            $.ajax({url: "index.html", success: function(){
+                foo(); //call nonexistent function to raise exception
+            }});
+        });
+    }
+
+    function print(){
+        errorTracker.printLog();
+    }
+
+</script>
+
+</body>
+</html>
