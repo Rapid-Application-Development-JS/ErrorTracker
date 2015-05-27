@@ -82,6 +82,54 @@ errorTracker.onError = function(serializedError){
 ```
 
 ###Methods
+####getDOMEvents
+```Javascript
+errorTracker.getDOMEvents();
+```
+Return object with DOM events arrays, which will be added to event chain.
+
+**Warning:** this property read only any changes will not has effect. For applying changes you should call method `applyDOMEvents` with argument object that contains changes
+
+Default value:
+```
+{
+    "_any": [
+        "load",
+        "drop",
+        "paste",
+        "play",
+        "pageshow",
+        "hashchange",
+        "hold",
+        "fling",
+        "longtap",
+        "tap",
+        "doubletap",
+        "pointerup",
+        "pointerdown"
+    ],
+    "button": [
+        "click",
+        "dblclick"
+    ],
+    "input": [
+        "blur"
+    ],
+    "textarea": [
+        "blur"
+    ],
+    "form": [
+        "submit",
+        "reset"
+    ]
+}
+```
+####applyDOMEvents
+```Javascript
+errorTracker.applyDOMEvents({_any: ['tap']});
+```
+Method removes old DOM event listeners and sets new event listeners from argument object.
+Example code removes all DOM event listeners, which `ErrorTracker`  listened and adds `tap` event listener. Now only `tap` events will be added in to event chain. Events which was added before you call this method not removed. If you want clear event chain you should call method `clearLog`.
 ####addCustomEvent
 ```Javascript
 errorTracker.addCustomEvent({message: "My Event"});
@@ -145,3 +193,25 @@ Clear events chain
 errorTracker.printLog();
 ```
 Write to console events chain
+
+#### isAllowConsoleLogEvent
+```Javascript
+errorTracker.isAllowConsoleLogEvent()
+```
+Return true if `ErrorTracker` logs console events
+#### setAllowConsoleLogEvent
+```Javascript
+errorTracker.setAllowTimerLogEvent(isAllow)
+```
+Enable/disable logging of console events
+
+#### isAllowTimerLogEvent
+```Javascript
+errorTracker.isAllowTimerLogEvent()
+```
+Return true if `ErrorTracker` logs setTimeout and setInterval events
+#### setAllowTimerLogEvent
+```Javascript
+errorTracker.setAllowTimerLogEvent(isAllow)
+```
+Enable/disable logging of setTimeout and setInterval events
