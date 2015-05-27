@@ -130,6 +130,21 @@ errorTracker.applyDOMEvents({_any: ['tap']});
 ```
 Method removes old DOM event listeners and sets new event listeners from argument object.
 Example code removes all DOM event listeners, which `ErrorTracker`  listened and adds `tap` event listener. Now only `tap` events will be added in to event chain. Events which was added before you call this method not removed. If you want clear event chain you should call method `clearLog`.
+#### getIgnoredCustomEventsArray
+```Javascript
+errorTracker.getIgnoredCustomEventsArray();
+```
+Return array with custom events which tracker will be ignored
+
+As default:
+```
+["scroll", "wheel", "drag", "mousemove", "mouseover", "mouseout", "mouseleave", "mouseenter", "touchmove", "mousewheel", "input", "keydown", "keypress", "keyup", 'hold', 'fling','longtap','tap','doubletap' ]
+```
+#### setIgnoredCustomEventsArray
+```Javascript
+errorTracker.setIgnoredCustomEventsArray(ignoredCustomEventsArray);
+```
+Set custom events array, this events will not add to event chain
 ####addCustomEvent
 ```Javascript
 errorTracker.addCustomEvent({message: "My Event"});
