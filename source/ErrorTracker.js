@@ -9,12 +9,20 @@
         root.ErrorTracker = factory();
     }
 }(this, function () {
-    function ErrorTracker(){
-        var self = this;
+    function ErrorTracker(options){
+        var scope = this;
         var IGNORLOG = "_#_ignog_log_#_";
         var currentEventStack =[];
         var customEventStack =[];
+        var _DOMEventListener;
         this.version = "1.0.0";
+
+        var _options = mix({
+            allowConsoleLogEvent: true,
+            allowTimerLogEvent:true,
+            url:undefined,
+            onError: function(serializedError){}
+        }, options);
 
         this.SENDERS = {
             window: "window",
@@ -23,6 +31,15 @@
             tracker: "tracker"
         };
 
+        function mix(obj, mixin) {
+            var attr;
+            for (attr in mixin) {
+                if (mixin.hasOwnProperty(attr)) {
+                    obj[attr] = mixin[attr];
+                }
+            }
+            return obj;
+        }
 
         this.EVENTS = {
             maxEventStackLength: 50,
@@ -32,19 +49,102 @@
             listener: "custom EventListener",
             DOM: "DOM",
             DOMEventTypes: {
-                _any:["load", "drop", "paste", "play", "pageshow", "hashchange"],
-                button:["click", "dblclick", 'hold', 'fling','longtap','tap','doubletap'],
+                _any:["load", "drop", "paste", "play", "pageshow", "hashchange", 'hold', 'fling','longtap','tap','doubletap', 'pointerup',
+                    'pointerdown'],
+                button:["click", "dblclick"], //'hold', 'fling','longtap','tap','doubletap'
                 input:["blur"],
                 textarea:["blur"],
                 form:["submit", "reset"]
             },
             EventListenerEliminations: ["scroll", "wheel", "drag", "mousemove", "mouseover", "mouseout", "mouseleave", "mouseenter",
-                "touchmove", "mousewheel", "input", "keydown", "keypress", "keyup" ]
+                "touchmove", "mousewheel", "input", "keydown", "keypress", "keyup", 'hold', 'fling','longtap','tap','doubletap' ]
         };
 
         this.eventStack = {
             main : currentEventStack
         };
+
+        this.isAllowConsoleLogEvent = function(){
+            return _options.allowConsoleLogEvent;
+        };
+
+        this.setAllowConsoleLogEvent = function(isAllow){
+            _options.allowConsoleLogEvent = isAllow;
+        };
+
+        this.isAllowTimerLogEvent = function(){
+            return _options.allowTimerLogEvent;
+        };
+
+        this.setAllowTimerLogEvent = function(isAllow){
+            _options.allowTimerLogEvent = isAllow;
+        };
+        /**
+         *Array with custom events which tracker will be ignored
+         * @returns {Array}
+         */
+        this.getIgnoredCustomEventsArray = function(){
+            return scope.EVENTS.EventListenerEliminations;
+        };
+        /**
+         * Set custom events array, this events will not add to event chain
+         * @param ignoredCustomEventsArray - Array with custom events which tracker will be ignored
+         */
+        this.setIgnoredCustomEventsArray = function(ignoredCustomEventsArray){
+            scope.EVENTS.EventListenerEliminations = ignoredCustomEventsArray;
+        };
+
+        /***
+         * Return object with DOM events arrays, which will be added to event chain.
+         * Read only
+         */
+        this.getDOMEvents = function(){
+            var _DOMEvents={};
+            var keys = Object.keys(scope.EVENTS.DOMEventTypes);
+            for(var i = 0; i < keys.length; i++){
+                _DOMEvents[keys[i]] = scope.EVENTS.DOMEventTypes[keys[i]].slice();
+            }
+            return _DOMEvents;
+        };
+        /**
+         * Remove old events and set new events from DOMEvents object
+         * @param DOMEvents object with events arrays
+         */
+        this.applyDOMEvents=function(DOMEvents){
+            _RemoveDOMEventListener();
+            scope.EVENTS.DOMEventTypes = {};
+            var keys = Object.keys(DOMEvents);
+            for(var i = 0; i < keys.length; i++){
+                try {
+                    scope.EVENTS.DOMEventTypes[keys[i]] = DOMEvents[keys[i]].slice();
+                }catch (e)
+                {
+                    scope.fault(e);
+                }
+            }
+            wrapDOMEvents();
+        };
+
+        _DOMEventListener = function (event) {
+            var element, availableEvents;
+            try {
+                element = scope.elementForEvent(event);
+                if(element) {
+                    availableEvents = scope.EVENTS.DOMEventTypes[element.tagName.toLowerCase()];
+                    if(availableEvents) {
+                        availableEvents = availableEvents.concat(scope.EVENTS.DOMEventTypes._any);
+                        if (availableEvents && scope.arrayContains(availableEvents, event.type)) {
+                            scope.scheduleEvent(scope.EVENTS.DOM, {
+                                target: scope.serializeElement(element),
+                                type: event.type
+                            });
+                        }
+                    }
+                }
+            } catch (e){
+                scope.fault(e);
+            }
+        }.bind(scope);
 
         this.createNewEventBlock = function(blockName){
             blockName = blockName||"block "+(Object.keys(this.eventStack).length+1);
@@ -55,7 +155,7 @@
         this.clearLog = function(){
             currentEventStack = [];
             customEventStack = [];
-            self.eventStack = {
+            scope.eventStack = {
                 main : currentEventStack
             };
         };
@@ -65,10 +165,14 @@
             event.type = event.type||"custom event";
             event.eventId = event.eventId||customEventStack.length+1;
             customEventStack.push( this.scheduleEvent("user", event));
-        }
+        };
 
         this.printLog = function(){
-            console.info(JSON.stringify(self.eventStack, null, 4), IGNORLOG);
+            if(_options.allowConsoleLogEvent) {
+                console.info(JSON.stringify(scope.eventStack, null, 4), IGNORLOG);
+            }else{
+                console.info(JSON.stringify(scope.eventStack, null, 4));
+            }
         };
 
         this.fault = function(error){
@@ -81,7 +185,7 @@
             error.sender = sender;
             error.timestamp = this.isoNow();
             error.sessionID = this.sessionID;
-            error.eventsStack = self.eventStack;
+            error.eventsStack = scope.eventStack;
             if(window.performance && window.performance.memory){
                 error.memoryInfo = window.performance.memory;
             }
@@ -91,8 +195,20 @@
             //    userAgent : window.navigator.userAgent,
             //    browserName : window.navigator.appName
             //};
-            this.onError(this.serializeError(error));
-            this.clearLog();
+            setTimeout(function() {
+                var jsonError = scope.serializeError(error);
+                if(scope.onError) {
+                    scope.onError(jsonError);
+                }
+                if(_options.url){
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("post", _options.url, true);
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+                    xhr.send(jsonError);
+                }
+            },500);
+            //this.clearLog();
         };
 
         this.scheduleEvent = function(eventSender, info){
@@ -109,13 +225,13 @@
             window.onerror = function(errMsg, url, line, column, error){
                 try {
                     error = error || {};
-                    error.message = error.message || self.serialize(errMsg);
-                    error.file = error.file || self.serialize(url);
+                    error.message = error.message || scope.serialize(errMsg);
+                    error.file = error.file || scope.serialize(url);
                     error.line = error.line || (parseInt(line, 10) || null);
                     error.column = error.column || (parseInt(column, 10) || null);
-                    self.addError(self.SENDERS.window, error);
+                    scope.addError(scope.SENDERS.window, error);
                 } catch (e) {
-                    self.fault(e);
+                    scope.fault(e);
                 }
             };
         };
@@ -127,23 +243,32 @@
                 if(this.hasMethod(console, level)) {
                     (function(level){
                         var original = console[level];
+
                         console[level] = function (txt) {
-                            try {
-                                if((arguments.length>1)||(arguments[1]===IGNORLOG)){
-                                    arguments.length = 1;
+                            if(_options.allowConsoleLogEvent) {
+                                try {
+                                    if ((arguments.length > 1) || (arguments[1] === IGNORLOG)) {
+                                        arguments.length = 1;
+                                        original.apply(this, arguments);
+                                        return;
+                                    }
                                     original.apply(this, arguments);
-                                    return;
+                                    if (level === "error") {
+                                        scope.addError(scope.SENDERS.console, new Error(arguments[0]));
+                                    } else {
+                                        scope.scheduleEvent(scope.EVENTS.console, {
+                                            level: level,
+                                            args: scope.serialize(arguments)
+                                        });
+                                    }
+                                } catch (e) {
+                                    scope.fault(e);
                                 }
+                            }else{
                                 original.apply(this, arguments);
-                                if (level === "error") {
-                                    self.addError(self.SENDERS.console, new Error(arguments[0]));
-                                } else  {
-                                    self.scheduleEvent(self.EVENTS.console, {level:level, args:self.serialize(arguments)});
-                                }
-                            } catch (e){
-                                self.fault(e);
                             }
                         }
+
                     })(level);
                 }
             }
@@ -157,13 +282,13 @@
                 if (xhr.errorTrackingInfo) {
                     xhr.errorTrackingInfo.statusCode = xhr.status == 1223 ? 204 : xhr.status;
                     xhr.errorTrackingInfo.statusText = xhr.status == 1223 ? "No Content" : xhr.statusText;
-                    self.scheduleEvent(self.EVENTS.xhr, xhr.errorTrackingInfo);
+                    scope.scheduleEvent(scope.EVENTS.xhr, xhr.errorTrackingInfo);
                 }
             }
 
             function checkFault(xhr) {
                 if (xhr.errorTrackingInfo && xhr.status >= 400 && xhr.status != 1223) {
-                    self.addError(self.SENDERS.xhr, {status: xhr.status, statusText: xhr.statusText, method: xhr.errorTrackingInfo.method, url: xhr.errorTrackingInfo.url});
+                    scope.addError(scope.SENDERS.xhr, {status: xhr.status, statusText: xhr.statusText, method: xhr.errorTrackingInfo.method, url: xhr.errorTrackingInfo.url});
                 }
             }
 
@@ -204,7 +329,7 @@
                                 }
                             };
                         } catch (e) {
-                            self.fault(e);
+                            scope.fault(e);
                         }
                     }, 0);
                 }
@@ -223,10 +348,10 @@
             XMLHttpRequest.prototype.send = function() {
                 if(this.errorTrackingInfo) {
                     try {
-                        this.errorTrackingInfo.sendTime = self.isoNow();
+                        this.errorTrackingInfo.sendTime = scope.isoNow();
                         completionListener(this);
                     } catch (e) {
-                        self.fault(e);
+                        scope.fault(e);
                     }
                 }
                 return origSend.apply(this, arguments);
@@ -236,15 +361,17 @@
         this.wrapTimers = function(){
             function wrap(func){
                 var original = window[func];
-                window[func] = function(){
-                    try{
+                window[func] = function logTimerEvent(){
+                    if(_options.allowTimerLogEvent) {
+                        try {
 
-                        self.scheduleEvent(self.EVENTS.timer, {
-                            type: func,
-                            params: self.serialize(Array.prototype.slice.call(arguments, 1))
-                        });
-                    } catch (e){
-                        self.fault(e);
+                            scope.scheduleEvent(scope.EVENTS.timer, {
+                                type: func,
+                                params: scope.serialize(Array.prototype.slice.call(arguments, 1))
+                            });
+                        } catch (e) {
+                            scope.fault(e);
+                        }
                     }
                     original.apply(this, arguments);
                 };
@@ -254,40 +381,37 @@
             wrap("setInterval");
         };
 
-        this.wrapDOMEvents = function(){
-            var i, eventName, keys = Object.keys(this.EVENTS.DOMEventTypes), allEvents = [];
+        function wrapDOMEvents () {
+            var i, eventName, keys = Object.keys(scope.EVENTS.DOMEventTypes), allEvents = [];
 
-            for(i = 0; i < keys.length; i++){
-                allEvents = allEvents.concat(this.EVENTS.DOMEventTypes[keys[i]]);
+            for (i = 0; i < keys.length; i++) {
+                allEvents = allEvents.concat(scope.EVENTS.DOMEventTypes[keys[i]]);
             }
-            allEvents = this.arrayUnique(allEvents);
-
-            for(i = allEvents.length - 1; i >= 0; i--) {
+            allEvents = scope.arrayUnique(allEvents);
+            for (i = allEvents.length - 1; i >= 0; i--) {
                 eventName = allEvents[i];
-                (function(eventName) {
-                    document.addEventListener(eventName, function (event) {
-                        var element, availableEvents;
-                        try {
-                            element = self.elementForEvent(event);
-                            if(element) {
-                                availableEvents = self.EVENTS.DOMEventTypes[element.tagName.toLowerCase()];
-                                if(availableEvents) {
-                                    availableEvents = availableEvents.concat(self.EVENTS.DOMEventTypes._any);
-                                    if (availableEvents && self.arrayContains(availableEvents, event.type)) {
-                                        self.scheduleEvent(self.EVENTS.DOM, {
-                                            target: self.serializeElement(element),
-                                            type: event.type
-                                        });
-                                    }
-                                }
-                            }
-                        } catch (e){
-                            self.fault(e);
-                        }
-                    }, true);
-                })(eventName)
+                document.addEventListener(eventName, _DOMEventListener, true);
             }
         };
+
+        function _RemoveDOMEventListener(){
+            var i, eventName, keys = Object.keys(scope.EVENTS.DOMEventTypes), allEvents = [];
+
+            for(i = 0; i < keys.length; i++){
+                allEvents = allEvents.concat(scope.EVENTS.DOMEventTypes[keys[i]]);
+            }
+            allEvents = scope.arrayUnique(allEvents);
+            for(i = allEvents.length - 1; i >= 0; i--) {
+                eventName = allEvents[i];
+                document.removeEventListener(eventName, _DOMEventListener, true);
+            }
+        };
+
+        this.removeListener = function(){
+            _RemoveDOMEventListener();
+        };
+
+
 
         this.wrapCustomEventListeners = function(){
             function wrap(object, funcName){
@@ -295,20 +419,20 @@
                 object[funcName] = function(){
                     var listener;
                     try {
-                        if(arguments.length > 0 && !self.arrayContains(self.EVENTS.EventListenerEliminations, arguments[0])){
+                        if(arguments.length > 0 && !scope.arrayContains(scope.EVENTS.EventListenerEliminations, arguments[0])){
                             listener = arguments[1];
                             if (typeof listener === "function") {
                                 arguments[1] = function (event) {
                                     listener.apply(this, arguments);
-                                    self.scheduleEvent(self.EVENTS.listener, {
-                                        target: self.serializeElement(self.elementForEvent(event)),
+                                    scope.scheduleEvent(scope.EVENTS.listener, {
+                                        target: scope.serializeElement(scope.elementForEvent(event)),
                                         type: event.type
                                     });
                                 }
                             }
                         }
                     } catch (e) {
-                        self.fault(e);
+                        scope.fault(e);
                     }
                     original.apply(this, arguments);
                 };
@@ -362,26 +486,26 @@
                         return "";
                     }
                     if (/^[a-z0-9!#$%&'*+=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(data)) {
-                        return "email";
+                        return "{type: email, length: "+data.length+"}";
                     }
                     if (/^(\d{4}[\/\-](0?[1-9]|1[012])[\/\-]0?[1-9]|[12][0-9]|3[01])$/.test(data)) {
-                        return "date";
+                        return "{type: date, length: "+data.length+"}";
                     }
                     if (/^\s*$/.test(data)) {
-                        return "whitespace";
+                        return "{type: whitespace, length: "+data.length+"}";
                     }
                     if (/^\d*$/.test(data)) {
-                        return "numeric";
+                        return  "{type: numeric, length: "+data.length+"}";
                     }
                     if (/^[a-zA-Z]*$/.test(data)) {
-                        return "alpha";
+                        return "{type: alpha, length: "+data.length+"}";
                     }
                     if (/^[a-zA-Z0-9]*$/.test(data)) {
-                        return "alphanumeric";
+                        return "{type: alphanumeric, length: "+data.length+"}";
                     }
-                    return "characters";
+                    return "{type: characters, length: "+data.length+"}";
                 } else {
-                    return self.serialize(data);
+                    return scope.serialize(data);
                 }
             }
 
@@ -520,10 +644,9 @@
 
         this.sessionID = this.createGUID();
         this.wrapGlobalErrors();
-     //   this.wrapTimers();
         this.wrapConsole();
         this.wrapNetwork();
-        this.wrapDOMEvents();
+        wrapDOMEvents();
         this.wrapCustomEventListeners();
         this.wrapTimers();
         this.clearLog();
