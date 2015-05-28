@@ -1,5 +1,5 @@
 var errorTracker = new ErrorTracker({
-    url:"http://127.0.0.1",
+    url: "https://httpbin.org/post",//"http://127.0.0.1",
     allowConsoleLogEvent: true,
     allowTimerLogEvent: false,
     onError: function(serializedError){
@@ -36,15 +36,17 @@ main.addEventListener(gesture.GESTURE_EVENTS.tap,
                 errorTracker.printLog();
                 break;
             case 'launchButton':
-            setTimeout(function(){
-                $.ajax({url: "index.html", success: function(){
-                    foo(); //call nonexistent function to raise exception
-                }});
-            });
-             break;
+                setTimeout(function(){
+                    $.ajax({url: "index.html", success: function(){
+                        foo(); //call nonexistent function to raise exception
+                    }});
+                });
+                break;
         }
     }
 );
+errorTracker.applyDOMEvents({_any: ['tap']});
+errorTracker.isAllowConsoleLogEvent()
 //main.addEventListener("click" , function(event){
 //    if(event.target.id === "launchButton") {
 //        foo();

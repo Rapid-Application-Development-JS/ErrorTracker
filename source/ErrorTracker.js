@@ -195,17 +195,26 @@
             //    userAgent : window.navigator.userAgent,
             //    browserName : window.navigator.appName
             //};
-            setTimeout(function() {
-                var jsonError = scope.serializeError(error);
-                if(scope.onError) {
-                    scope.onError(jsonError);
-                }
-                if(_options.url){
 
-                    var xhr = new XMLHttpRequest();
-                    xhr.open("post", _options.url, true);
-                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-                    xhr.send(jsonError);
+            setTimeout(function() {
+                if(error.url!==_options.url){
+                    var jsonError = scope.serializeError(error);
+                    if(scope.onError) {
+                        scope.onError(jsonError);
+                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: _options.url,
+                        crossDomain: true,
+                        data: jsonError,
+                        dataType: 'json',
+                        success: function(responseData, textStatus, jqXHR) {
+                            var value = responseData.someKey;
+                        },
+                        error: function (responseData, textStatus, errorThrown) {
+                            console.error('ERROR_TRACKER INTERNAL ERROR:', responseData, textStatus, errorThrown);
+                        }
+                    });
                 }
             },500);
             //this.clearLog();
