@@ -197,24 +197,26 @@
                     if(scope.onError) {
                         scope.onError(jsonError);
                     }
-                    $.ajax({
-                        type: 'POST',
-                        url: _options.url,
-                        crossDomain: true,
-                        data: jsonError,
-                        dataType: 'json',
-                        success: function(responseData, textStatus, jqXHR) {
-                            var value = responseData.someKey;
-                        },
-                        error: function (responseData, textStatus, errorThrown) {
-                            console.error('ERROR_TRACKER INTERNAL ERROR:', responseData, textStatus, errorThrown);
-                        }
-                    });
+                    sendErrorPost(jsonError);
                 }
             },500);
-            //this.clearLog();
         };
 
+        function sendErrorPost(jsonError){
+            var XHR = ("onload" in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
+            var xhr = new XHR();
+            xhr.open('POST', _options.url, true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                if(xhr.status === 200) {
+                    console.info('Error log has sended to service', IGNORLOG);
+                    scope.clearLog();
+                }else{
+                    console.error('Error: cant send log to service', IGNORLOG);
+                }
+            }
+            xhr.send(jsonError);
+        }
         this.scheduleEvent = function(eventSender, info){
             info.eventSender = eventSender;
             info.time = this.isoNow();
