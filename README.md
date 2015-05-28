@@ -74,14 +74,15 @@ var errorTracker = new ErrorTracker({
 
 **allowTimerLogEvent** - if set true include in to chain events about calle setTimeout setInterval functions. As default sets true.
 
-**onError** - callback function which calls when error will throw. As default sets empty function. You can set or override this function anytime just set new function to field onError.
-```Javascript
-errorTracker.onError = function(serializedError){
-    console.log(serializedError);
-}
-```
-
+**onError** - callback function which calls when error will throw. As default sets empty function. You can set or override this function anytime just pass new function as argument to method setOnErrorCallback.
 ###Methods
+####setOnErrorCallback
+```Javascript
+errorTracker.setOnErrorCallback(function(serializedError){
+    console.log(serializedError);
+});
+```
+Takes as argument callback function which calls when error will throw.
 ####getDOMEvents
 ```Javascript
 errorTracker.getDOMEvents();
