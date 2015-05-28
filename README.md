@@ -1,6 +1,8 @@
 # ErrorTracker
 Error tracker stores the chain of events occurring in the application such as user interface events, sending a request to the server, launch timer, etc. It also provides information about the environment. Such as browser and operating system version, connected libraries and scripts, the network status (if this is supported by api used browser). With Error Tracker you can break the chain of events for a few blocks, added custom events, write to the console or clear chain of errors. Also Error Tracker suport pointer and gesture events.
 
+**Warning** ErrorTracker send logs to web-service as cross-domain request with method `POST` an header `Content-Type`: `application/x-www-form-urlencoded` your service should allow this method for cross-domein requests. Expects `status` `200` as success result. 
+
 [Example](http://rapid-application-development-js.github.io/ErrorTracker/example)
 
 ###How it work
