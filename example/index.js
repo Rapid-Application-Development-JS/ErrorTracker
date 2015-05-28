@@ -6,17 +6,12 @@ var errorTracker = new ErrorTracker({
         console.log(serializedError);
     }
 });
-errorTracker.onError = function(serializedError){
-    console.log(serializedError);
-};
-
 
 var blockText = document.getElementById("blockText"),
     main = document.getElementById("main"),
     eventMessage = document.getElementById("eventMessage");
 var pointer = new PointerTracker(main),
     gesture = new GestureTracker(main);
-//   gesture._pointerDown(null);
 main.addEventListener(gesture.GESTURE_EVENTS.tap,
     function (event){
         switch (event.target.id){
@@ -45,10 +40,4 @@ main.addEventListener(gesture.GESTURE_EVENTS.tap,
         }
     }
 );
-errorTracker.applyDOMEvents({_any: ['tap']});
-errorTracker.isAllowConsoleLogEvent()
-//main.addEventListener("click" , function(event){
-//    if(event.target.id === "launchButton") {
-//        foo();
-//    }
-//});
+

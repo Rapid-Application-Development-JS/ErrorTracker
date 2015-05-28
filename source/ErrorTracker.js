@@ -190,11 +190,6 @@
                 error.memoryInfo = window.performance.memory;
             }
             error.enviroment = this.environmentInfo();
-            //{
-            //    userAgentVersion : window.navigator.appVersion,
-            //    userAgent : window.navigator.userAgent,
-            //    browserName : window.navigator.appName
-            //};
 
             setTimeout(function() {
                 if(error.url!==_options.url){
@@ -644,7 +639,10 @@
                     } catch (e) {}
                 }
             }
-
+            config.scripts =[];
+            for(var i = 0; i!=document.scripts.length; i++) {
+                config.scripts[i] = document.scripts[i].outerHTML;
+            }
             config.userAgent = navigator.userAgent;
             config.viewportHeight = document.documentElement.clientHeight;
             config.viewportWidth = document.documentElement.clientWidth;
