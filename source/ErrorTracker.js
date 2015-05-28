@@ -64,6 +64,10 @@
             main : currentEventStack
         };
 
+        this.setOnErrorCallback = function(callback){
+            _options.onError = callback;
+        };
+
         this.isAllowConsoleLogEvent = function(){
             return _options.allowConsoleLogEvent;
         };
@@ -194,8 +198,8 @@
             setTimeout(function() {
                 if(error.url!==_options.url){
                     var jsonError = scope.serializeError(error);
-                    if(scope.onError) {
-                        scope.onError(jsonError);
+                    if(_options.onError) {
+                        _options.onError(jsonError);
                     }
                     sendErrorPost(jsonError);
                 }
