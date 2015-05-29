@@ -59,6 +59,7 @@ Init `Error Tracker` with service api url and tracker will start work when your 
     "_stack": "ReferenceError: foo is not defined\n    at Object.$.ajax.success (http://localhost:63342/error-tracker/example/index.js:40:25)\n    at n.Callbacks.j (https://code.jquery.com/jquery-2.1.3.min.js:2:26911)\n    at Object.n.Callbacks.k.fireWith [as resolveWith] (https://code.jquery.com/jquery-2.1.3.min.js:2:27724)\n    at x (https://code.jquery.com/jquery-2.1.3.min.js:4:11084)\n    at XMLHttpRequest.n.ajaxTransport.k.cors.a.crossDomain.send.b (https://code.jquery.com/jquery-2.1.3.min.js:4:14577)"
 }
 ```
+If you have error in min files with map files correct stack info you can get on the web-service.
 ### initialization
 ```Javascript
 var errorTracker = new ErrorTracker({
