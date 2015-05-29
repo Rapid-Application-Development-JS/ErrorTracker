@@ -49,9 +49,8 @@
             listener: "custom EventListener",
             DOM: "DOM",
             DOMEventTypes: {
-                _any:["load", "drop", "paste", "play", "pageshow", "hashchange", 'hold', 'fling','longtap','tap','doubletap', 'pointerup',
-                    'pointerdown'],
-                button:["click", "dblclick"], //'hold', 'fling','longtap','tap','doubletap'
+                _any:["load", "drop", "paste", "play", "pageshow", "hashchange", 'pointerup', 'pointerdown', 'pointercancel', 'touchstart', 'touchend', 'touchcancel'],
+                button:["click", "dblclick"],
                 input:["blur"],
                 textarea:["blur"],
                 form:["submit", "reset"]
