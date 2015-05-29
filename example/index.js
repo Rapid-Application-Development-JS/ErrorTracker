@@ -40,4 +40,3 @@ main.addEventListener(gesture.GESTURE_EVENTS.tap,
         }
     }
 );
-
