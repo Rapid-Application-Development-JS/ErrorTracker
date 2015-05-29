@@ -103,13 +103,12 @@ Default value:
         "play",
         "pageshow",
         "hashchange",
-        "hold",
-        "fling",
-        "longtap",
-        "tap",
-        "doubletap",
         "pointerup",
-        "pointerdown"
+        "pointerdown",
+        "pointercancel",
+        "touchstart",
+        "touchend",
+        "touchcancel"
     ],
     "button": [
         "click",
