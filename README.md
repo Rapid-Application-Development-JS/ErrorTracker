@@ -1,12 +1,12 @@
 # ErrorTracker
-Error tracker stores the chain of events occurring in the application such as user interface events, sending a request to the server, launch timer, etc. It also provides information about the environment. Such as browser and operating system version, connected libraries and scripts, the network status (if this is supported by api used browser). With Error Tracker you can break the chain of events for a few blocks, added custom events, write to the console or clear chain of errors. Also Error Tracker suport pointer and gesture events.
+Error tracker stores the chain of events occurring in the application such as user interface events, sending the requests to the server, launching the timers etc. It also provides information about the environment such as browser and operating system version, connected libraries and scripts, the network status (if it is supported by api used browser). With Error Tracker you can break the chain of events into some blocks, add custom events, write to the console or clear chain of errors. Also Error Tracker supports pointer and gesture events.
 
-**Warning:** ErrorTracker send logs to web-service as cross-domain request with method `POST` an header `Content-Type`: `application/x-www-form-urlencoded` your service should allow this method for cross-domein requests. Expects `status` `200` as success result. 
+**Warning:** ErrorTracker sends logs to web-service as cross-domain request with method `POST` an header `Content-Type`: `application/x-www-form-urlencoded` your service should allow this method for cross-domein requests. It expects `status` `200` as a result of success. 
 
 [Example](http://rapid-application-development-js.github.io/ErrorTracker/example)
 
-###How it work
-Init `Error Tracker` with service api url and tracker will start work when your application throw error `Error Tracker` will send event chain with error description and environment info to your service.
+###How it works
+Init `Error Tracker` with service api url and tracker will start work. When your application throws error `Error Tracker` will send events chain with error description and environment info to your service.
 ```
 {
     "file": "http://localhost:63342/error-tracker/example/index.js",
@@ -59,7 +59,7 @@ Init `Error Tracker` with service api url and tracker will start work when your 
     "_stack": "ReferenceError: foo is not defined\n    at Object.$.ajax.success (http://localhost:63342/error-tracker/example/index.js:40:25)\n    at n.Callbacks.j (https://code.jquery.com/jquery-2.1.3.min.js:2:26911)\n    at Object.n.Callbacks.k.fireWith [as resolveWith] (https://code.jquery.com/jquery-2.1.3.min.js:2:27724)\n    at x (https://code.jquery.com/jquery-2.1.3.min.js:4:11084)\n    at XMLHttpRequest.n.ajaxTransport.k.cors.a.crossDomain.send.b (https://code.jquery.com/jquery-2.1.3.min.js:4:14577)"
 }
 ```
-If you have error in min files with map files correct stack info you can get on the web-service.
+If you have an error in min files and you have map files for them you can get correct stack info on the web-service.
 ### initialization
 ```Javascript
 var errorTracker = new ErrorTracker({
@@ -71,11 +71,11 @@ var errorTracker = new ErrorTracker({
     }
 });
 ```
-**url** - Put here url address of web service which will be used for sending error logs. If you don't set this field logs will not sended.
+**url** - Insert here url address of web service which will be used for sending error logs. If you don't set this field, logs will not be sent.
 
-**allowConsoleLogEvent** - if set true include in to chain events about calle console functions such as `log`, `info`, `dir` etc. As default sets true.
+**allowConsoleLogEvent** - if you set `true` than ErrorTracker will add calls console functions such as `log`, `info`, `dir` etc. to chain events. As default it is set as `true`.
 
-**allowTimerLogEvent** - if set true include in to chain events about calle setTimeout setInterval functions. As default sets true.
+**allowTimerLogEvent** - if you set `true` than ErrorTracker will add call events of setTimeout and setInterval functions. As default it is set as `true`.
 
 **onError** - callback function which calls when error will throw. As default sets empty function. You can set or override this function anytime just pass new function as argument to method setOnErrorCallback.
 ###Methods
