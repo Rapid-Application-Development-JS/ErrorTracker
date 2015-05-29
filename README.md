@@ -1,6 +1,8 @@
 # ErrorTracker
 Error tracker stores the chain of events occurring in the application such as user interface events, sending a request to the server, launch timer, etc. It also provides information about the environment. Such as browser and operating system version, connected libraries and scripts, the network status (if this is supported by api used browser). With Error Tracker you can break the chain of events for a few blocks, added custom events, write to the console or clear chain of errors. Also Error Tracker suport pointer and gesture events.
 
+**Warning:** ErrorTracker send logs to web-service as cross-domain request with method `POST` an header `Content-Type`: `application/x-www-form-urlencoded` your service should allow this method for cross-domein requests. Expects `status` `200` as success result. 
+
 [Example](http://rapid-application-development-js.github.io/ErrorTracker/example)
 
 ###How it work
@@ -74,14 +76,15 @@ var errorTracker = new ErrorTracker({
 
 **allowTimerLogEvent** - if set true include in to chain events about calle setTimeout setInterval functions. As default sets true.
 
-**onError** - callback function which calls when error will throw. As default sets empty function. You can set or override this function anytime just set new function to field onError.
-```Javascript
-errorTracker.onError = function(serializedError){
-    console.log(serializedError);
-}
-```
-
+**onError** - callback function which calls when error will throw. As default sets empty function. You can set or override this function anytime just pass new function as argument to method setOnErrorCallback.
 ###Methods
+####setOnErrorCallback
+```Javascript
+errorTracker.setOnErrorCallback(function(serializedError){
+    console.log(serializedError);
+});
+```
+Takes as argument callback function which calls when error will throw.
 ####getDOMEvents
 ```Javascript
 errorTracker.getDOMEvents();
@@ -100,13 +103,12 @@ Default value:
         "play",
         "pageshow",
         "hashchange",
-        "hold",
-        "fling",
-        "longtap",
-        "tap",
-        "doubletap",
         "pointerup",
-        "pointerdown"
+        "pointerdown",
+        "pointercancel",
+        "touchstart",
+        "touchend",
+        "touchcancel"
     ],
     "button": [
         "click",
