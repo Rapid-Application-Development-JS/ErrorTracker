@@ -1,0 +1,56 @@
+{
+  "author": "Yuriy Luchaninov <y.luchaninov@mobidev.biz> (http://mobidev.biz/)",
+  "bugs": {
+    "url": "https://github.com/Rapid-Application-Development-JS/ErrorTracker/issues"
+  },
+  "contributors": [
+    {
+      "email": "a.trofimenko@mobidev.biz",
+      "name": "Anton Trofimenko"
+    },
+    {
+      "email": "r.prokofeyv@mobidev.biz",
+      "name": "Roman Prokofeyv"
+    },
+    {
+      "email": "y.luchaninov@mobidev.biz",
+      "name": "Yuriy Luchaninov"
+    }
+  ],
+  "dependencies": {
+  },
+  "description": "Error tracker stores the chain of events occurring in the application such as user interface events, sending the requests to the server, launching the timers etc. It also provides information about the environment such as browser and operating system version, connected libraries and scripts, the network status (if it is supported by api used browser). With Error Tracker you can break the chain of events into some blocks, add custom events, write to the console or clear chain of errors. Also Error Tracker supports pointer and gesture events.",
+  "devDependencies": {
+    "uglifyjs": "*"
+  },
+  "directories": {
+    "example": "example",
+    "lib": "source"
+  },
+  "homepage": "https://github.com/Rapid-Application-Development-JS/Drawer",
+  "keywords": [
+    "Error",
+    "tracker",
+    "log"
+  ],
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/Rapid-Application-Development-JS/ErrorTracker/blob/master/LICENSE.md"
+  },
+  "main": [
+    "release/errortracker.min.js",
+    "release/errortracker.min.js.map"
+  ],
+  "name": "radjs-errortracker",
+  "private": false,
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rapid-Application-Development-JS/ErrorTracker.git"
+  },
+  "scripts": {
+    "build-js": "uglifyjs source/ErrorTracker.js --compress --mangle --screw-ie8 --comments --lint --source-map release/errortracker.min.js.map --output release/errortracker.min.js",
+    "test": "echo \"no test required\" && exit 1"
+  },
+  "version": "1.0.1"
+}
