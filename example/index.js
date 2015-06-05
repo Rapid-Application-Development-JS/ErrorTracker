@@ -1,5 +1,5 @@
 var errorTracker = new ErrorTracker({
-    url: "https://httpbin.org/post",//"http://127.0.0.1",
+    url: "https://httpbin.org/post",
     allowConsoleLogEvent: true,
     allowTimerLogEvent: false,
     onError: function(serializedError){
@@ -13,11 +13,11 @@ var blockText = document.getElementById("blockText"),
 var pointer = new PointerTracker(main),
     gesture = new GestureTracker(main);
 main.addEventListener(gesture.GESTURE_EVENTS.tap,
-    function (event){
-        switch (event.target.id){
+    function (event) {
+        switch (event.target.id) {
             case 'customEventButton':
                 errorTracker.addCustomEvent({message: eventMessage.value});
-                eventMessage.value ="";
+                eventMessage.value = "";
                 break;
             case 'addBlockButton':
                 errorTracker.createNewEventBlock(blockText.value);
@@ -27,14 +27,16 @@ main.addEventListener(gesture.GESTURE_EVENTS.tap,
                 errorTracker.clearLog();
                 break;
             case 'printButton':
-                console.log("YES");
                 errorTracker.printLog();
                 break;
             case 'launchButton':
-                setTimeout(function(){
-                    $.ajax({url: "index.html", success: function(){
-                        foo(); //call nonexistent function to raise exception
-                    }});
+                setTimeout(function () {
+                    $.ajax({
+                        url: 'index.html',
+                        success: function () {
+                            foo(); //call nonexistent function to raise exception
+                        }
+                    });
                 });
                 break;
         }

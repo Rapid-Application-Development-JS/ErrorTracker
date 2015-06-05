@@ -285,8 +285,8 @@
 
         this.wrapNetwork = function(){
             var origSend = XMLHttpRequest.prototype.send,
+                origError = XMLHttpRequest.prototype.error,
                 origOpen = XMLHttpRequest.prototype.open;
-
             function finalize(xhr) {
                 if (xhr.errorTrackingInfo) {
                     xhr.errorTrackingInfo.statusCode = xhr.status == 1223 ? 204 : xhr.status;
@@ -296,9 +296,22 @@
             }
 
             function checkFault(xhr) {
-                if (xhr.errorTrackingInfo && xhr.status >= 400 && xhr.status != 1223) {
-                    scope.addError(scope.SENDERS.xhr, {status: xhr.status, statusText: xhr.statusText, method: xhr.errorTrackingInfo.method, url: xhr.errorTrackingInfo.url});
+                var errorText;
+                if (xhr.status === 0) {
+                    errorText = 'Not connect. Verify Network.';
+                } else if (xhr.status == 404) {
+                    errorText = 'Requested page not found. [404]';
+                } else if (xhr.status == 500) {
+                    errorText = 'Internal Server Error [500].';
+                } else {
+                    errorText = 'Uncaught Error.\n' + xhr.responseText;
                 }
+
+                scope.addError(scope.SENDERS.xhr, {
+                    status: xhr.status,
+                    statusText: xhr.statusText || errorText,
+                    errorInfo: xhr.errorTrackingInfo
+                });
             }
 
             function completionListener(xhr){
@@ -308,11 +321,20 @@
                             if (xhr.readyState === 4) {
                                 finalize(xhr);
                             }
+                            //checkFault(xhr);
                         }, true);
                     }
                 }
                 if (xhr.addEventListener) {
                     xhr.addEventListener("load", function() {
+                        finalize(xhr);
+ //                       checkFault(xhr);
+                    }, true);
+                    xhr.addEventListener("error", function(event) {
+                        finalize(xhr);
+                        checkFault(xhr);
+                    }, true);
+                    xhr.addEventListener("abort", function(event) {
                         finalize(xhr);
                         checkFault(xhr);
                     }, true);
@@ -320,7 +342,9 @@
                     setTimeout(function() {
                         try {
                             var origOnLoad = xhr.onload,
+                                origOnAbort = xhr.onabort,
                                 origOnError = xhr.onerror;
+
 
                             xhr.onload = function() {
                                 finalize(xhr);
@@ -335,6 +359,13 @@
                                 checkFault(xhr);
                                 if ("function" === typeof origOnError) {
                                     origOnError.apply(xhr, arguments);
+                                }
+                            };
+                            xhr.onabort  = function() {
+                                finalize(xhr);
+                                checkFault(xhr);
+                                if ("function" === typeof origOnAbort) {
+                                    origOnAbort.apply(xhr, arguments);
                                 }
                             };
                         } catch (e) {
@@ -373,7 +404,6 @@
                 window[func] = function logTimerEvent(){
                     if(_options.allowTimerLogEvent) {
                         try {
-
                             scope.scheduleEvent(scope.EVENTS.timer, {
                                 type: func,
                                 params: scope.serialize(Array.prototype.slice.call(arguments, 1))
@@ -648,6 +678,9 @@
             for(var i = 0; i!=document.scripts.length; i++) {
                 config.scripts[i] = document.scripts[i].outerHTML;
             }
+            var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection||{ type:" Network Information API not Supported"};
+            config.connectionType = connection.type;
+            config.connectionStatus = navigator.onLine;
             config.userAgent = navigator.userAgent;
             config.viewportHeight = document.documentElement.clientHeight;
             config.viewportWidth = document.documentElement.clientWidth;
